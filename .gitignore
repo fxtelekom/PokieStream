@@ -1,0 +1,6 @@
+tests
+config.yml
+__pycache__
+*_env
+dist
+*.egg-info

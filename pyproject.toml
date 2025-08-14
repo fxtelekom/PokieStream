@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pokiestream"
+version = "0.0.1"
+description = "PokieStream - A plugin-based packet sniffer and logger application"
+readme = "README.md"
+requires-python = ">=3.8"
+license = "AGPL-3.0"
+license-files = ["LICENSE"]
+authors = [
+    { name = "FXTELEKOM", email = "kapcsolat@fxtelekom.org" }
+]
+dependencies = [
+    "scapy",
+    "culsans",
+    "uuid6",
+    "netifaces",
+    "pyyaml",
+    "importlib",
+    "lupa"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["pokiestream*"]
+
+[project.scripts]
+pokiestream = "pokiestream.components.app:main"

@@ -1,0 +1,7 @@
+scapy
+culsans
+uuid6
+netifaces
+pyyaml
+importlib
+lupa

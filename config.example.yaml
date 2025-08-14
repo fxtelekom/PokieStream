@@ -1,0 +1,78 @@
+config:
+  iface: "eth0" # The interface name to monitor
+  # In theory, PokieStream supports SPAN interfaces, but it has not been tested.
+  # TAP interfaces are fully supported.
+
+  plugin:
+    path: "plugins/plain.py" # The plugin to use 
+    # Plain is the default plugin, it performs an RDNS lookup on the IP address and prints the packet information to the console. (Highly inspired by conntrack)
+    pass_config: False # Whether to pass the config to the plugin
+    # If set to True, the plugin will receive the config object as the second argument.
+    # Useful for plugins that need access to the config or want to extend config.yaml with custom behavior and fields.
+    # However keep in mind that in the current version, the validation of the config is not extended to the plugin,
+    # so it is up to the plugin to validate the custom fields.
+
+  filter:
+    strict: False # Whether to use strict filtering 
+    # Strict filtering means that both source and destination must match, 
+    # if only one of them matches, the packet is ignored. If set to False, 
+    # either source or destination is enough to match and log the packet.
+
+    protocol: # The protocols to monitor (can be multiple)
+    # PokieStream supports the following protocols: tcp, udp, icmp (There is a plan to support more protocols in the future)
+      - udp
+      # UDP is tracked by source IP, Source Port, Destination IP and Destination Port.
+      # We are using a heap to efficiently track the sessions and expire them when we dont receive any packets for a while.
+      # The expiration time for a UDP is 120 seconds and 30 seconds for UDP DNS.
+      - tcp
+      - icmp
+
+    source: # The source IP addresses to monitor (can be a subnet or a single IP, multiple can be specified)
+      - 192.168.1.0/24
+      - 172.16.0.0/16
+
+    destination: # The destination IP addresses to monitor (can be a subnet or a single IP, multiple can be specified)
+      - 1.1.1.1
+      - 1.0.0.1
+
+    port: # The ports to monitor (can be multiple)
+      - 80
+      - 443
+
+    # Payload filters are useful if you want to filter by the payload of the packet. A payload filter is a subfilter of the main filter.
+    # This means that the payload filter will only be applied to the packets that match the main filter first.
+    # For example, if you want to filter by the DNS packet, you need to enable port 53 and the udp protocol on the main filter.
+    # You also need to enable the payload filter itself. A payload filter supports port and domain matching.
+    # For example if you want to log all DNS packets on port 53 but you only want to log if *.example.com is in the DNS request you can do that.
+    # Althroug payload filters are useful, this application is not designed to be a full featured packet analyzer. It's main goal is
+    # to be a simple and fast tool to monitor traffic just like conntrack but with plugins and extensible features.
+    # If you need a full featured packet analyzer, you should use a tool like Wireshark, Tshark or Scapy(which PokieStream is based on).
+
+    # Currently only DNS payload filter is implemented and it only supports UDP for now.
+    # TCP is a bit more complex and needs a complete connection tracking system. 
+    # However there is a plan to implement a TCP payload filter in the future
+    # which will allow the tool to filter by SNI, HTTP Host, User Agents or 
+    # any other unencrypted data in the TCP payload.
+    payload:
+      dns:
+        enabled: True
+        # The ports to monitor (can be multiple)
+        ports:
+          - 53
+
+        # The DNS to match (can be multiple)
+        match:
+          - "example.com"
+          - "*.mydomain.com"
+
+    scapy: "tcp and (port 80 or port 443)" # scapy filter expression
+    # You can use a scapy filter here to filter the packets if the built in filters are not enough or you want to filter by other criteria.
+    # It's recommended to disable (just delete them) the built in filters if you use a scapy filter. Using both will not cause any issues. 
+    # Just keep in mind that the default filters will be applied after the scapy filter.
+    # For more information about scapy filters, see https://scapy.readthedocs.io/en/latest/usage.html#filters
+
+  NOT_RECOMMENDED:
+    bypass_polling_delay: False # Whether to bypass the queue polling delay (Not recommended as it will cause the program to use a lot of CPU)
+    # By default PokieStream will process the packet from the queue as soon as possible, 
+    # however if the queue is empty we add a 10ms delay to the polling interval to prevent the program 
+    # from using too much CPU. If you want to bypass this delay, set this to True.
