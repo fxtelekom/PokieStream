@@ -62,6 +62,9 @@ def load_lua_plugin(path):
     return async_receiver
 
 def load_receiver():
+    if not config.plugin.path:
+        return None
+
     path = config.plugin.path
     ext = os.path.splitext(path)[1].lower()
 

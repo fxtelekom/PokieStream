@@ -13,7 +13,8 @@ from pokiestream.components.config import config
 from pokiestream.components.queue import create_queue, queues
 from pokiestream.components.checks import check_interface
 from pokiestream.components.plugin import load_receiver
-from pokiestream.components.udp import start_cleanup_task
+from pokiestream.components.udp import start_cleanup_task as start_udp_cleanup_task
+from pokiestream.components.tcp import start_cleanup_task as start_tcp_cleanup_task
 
 # Supress scapy errors.
 logging.getLogger("scapy.runtime").setLevel(logging.CRITICAL)
@@ -56,7 +57,8 @@ async def async_main():
     sniffer_thread = threading.Thread(target=run_sniffer, daemon=True)
     sniffer_thread.start()
 
-    asyncio.create_task(start_cleanup_task())
+    asyncio.create_task(start_udp_cleanup_task())
+    asyncio.create_task(start_tcp_cleanup_task())
     await process_queue()
 
 

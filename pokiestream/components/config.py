@@ -28,7 +28,8 @@ DEFAULTS = {
     },
 
     "plugin": {
-        "pass_config": False
+        "pass_config": False,
+        "path": None
     }
 }
 
