@@ -10,7 +10,6 @@ from pokiestream.components.udp import udp_session_manager
 from pokiestream.components.tcp import tcp_session_manager
 from pokiestream.components.queue import queues
 from pokiestream.components.config import config
-import uuid6
 
 connections = {}
 
@@ -96,19 +95,7 @@ def inspect_packets(packet):
                         tcp_state, session_id = tcp_session_manager.track_session_sync(src_ip, src_port, dst_ip, dst_port, flags)
 
                         if tcp_state is not None:
-                            data = {
-                                "src_ip": src_ip,
-                                "dst_ip": dst_ip,
-                                "src_port": src_port,
-                                "dst_port": dst_port,
-                                "protocol_num": prot_num,
-                                "protocol_name": "TCP",
-                                "state": tcp_state,
-                                "timestamp": timestamp,
-                                "session_id": session_id,
-                                "payload": None
-                            }
-
+                            data = {"src_ip": src_ip, "dst_ip": dst_ip, "src_port": src_port, "dst_port": dst_port, "protocol_num": prot_num, "protocol_name": "TCP", "state": tcp_state, "timestamp": timestamp, "session_id": session_id, "payload": None}
                             put_data_to_queue(data)
 
 
