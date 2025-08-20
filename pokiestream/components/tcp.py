@@ -1,12 +1,17 @@
 # SPDX-License-Identifier: AGPL-3.0
 # Copyright (C) 2025  FXTELEKOM
 
+from pokiestream.components.queue import queues
 import time
 import heapq
 import uuid6
 from datetime import datetime, timezone
 from threading import Lock
 import asyncio
+
+def put_data_to_queue(data, name='log_queue'):
+    if data:
+        queues[name].sync_q.put(data)
 
 class TCPSessionManager:
     def __init__(self, session_timeout=60):
